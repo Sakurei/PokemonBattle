@@ -1,5 +1,10 @@
 package utils;
 
-public class Type {
-    
+public enum Type {
+    FIRE,
+    WATER,
+    GRASS,
+    ELECTRIC,
+    ROCK,
+    FLYING
 }
