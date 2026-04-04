@@ -65,5 +65,9 @@ public abstract class Pokemon {
     public void setType(Type type) {
         this.type = type;
     }
-       
+    
+    // Method untuk menambahkan HP (misalnya saat di-heal)
+    public void heal(int amount) {
+        this.hp += amount;
+    }
 }
