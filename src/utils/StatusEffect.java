@@ -1,6 +1,6 @@
 package utils;
 
-public enum StatusEffect {
+public enum StatusEffect { // Efek status yang bisa diterapkan pada Pokemon
     NONE,
     BURN,       // FirePokemon → -5 HP per turn
     FREEZE,     // WaterPokemon → skip turn
