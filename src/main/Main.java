@@ -1,45 +1,48 @@
 package main;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import Models.Pokemon;
-import Models.Pikachu;
-import Models.Charmander;
-import Models.HealItem;
+import Models.Skill;
+import Models.BasicPokemon;
+import battles.BattleSystem;
+import data.SkillData;
+import utils.Type;
 
 public class Main {
     public static void main(String[] args) {
-        // Membuat Pokemon
-        Pokemon pikachu = new Pikachu("Pikachu", 100, 20, 10);
-        Pokemon charmander = new Charmander("Charmander", 120, 25, 15);
 
-        // Membuat heal item
-        HealItem potion = new HealItem("Potion", 30);
+        // ===== BUAT POKEMON =====
+        Pokemon pikachu = new BasicPokemon("Pikachu", 800, 20, 5, Type.ELECTRIC);
+        Pokemon charizard = new BasicPokemon("Charizard", 920, 25, 8, Type.FIRE);
 
-        System.out.println("=== TEST HEAL ITEM ===");
-        System.out.println(pikachu.getName() + " HP awal: " + pikachu.getHp());
-        System.out.println(charmander.getName() + " HP awal: " + charmander.getHp());
+        // ===== AMBIL SKILL SESUAI TYPE =====
+        ArrayList<Skill> pikachuSkills = SkillData.getSkillsByType(Type.ELECTRIC);
+        ArrayList<Skill> charizardSkills = SkillData.getSkillsByType(Type.FIRE);
 
-        // Pikachu menyerang Charmander
-        System.out.println("\n--- Pikachu menyerang Charmander ---");
-        pikachu.attack(charmander);
+        Random rand = new Random();
 
-        System.out.println("\n--- Status setelah serangan ---");
-        System.out.println(pikachu.getName() + " HP: " + pikachu.getHp());
-        System.out.println(charmander.getName() + " HP: " + charmander.getHp());
+        // ===== RANDOM 2 SKILL UNTUK PIKACHU =====
+        while (pikachu.getSkills().size() < 2) {
+            Skill s = pikachuSkills.get(rand.nextInt(pikachuSkills.size()));
 
-        // Charmander menyerang Pikachu
-        System.out.println("\n--- Charmander menyerang Pikachu ---");
-        charmander.attack(pikachu);
+            if (!pikachu.getSkills().contains(s)) {
+                pikachu.addSkill(s);
+            }
+        }
 
-        System.out.println("\n--- Status setelah serangan ---");
-        System.out.println(pikachu.getName() + " HP: " + pikachu.getHp());
-        System.out.println(charmander.getName() + " HP: " + charmander.getHp());
+        // ===== RANDOM 2 SKILL UNTUK CHARIZARD =====
+        while (charizard.getSkills().size() < 2) {
+            Skill s = charizardSkills.get(rand.nextInt(charizardSkills.size()));
 
-        // Menggunakan heal item pada Pikachu
-        System.out.println("\n--- Menggunakan Potion pada Pikachu ---");
-        potion.use(pikachu);
+            if (!charizard.getSkills().contains(s)) {
+                charizard.addSkill(s);
+            }
+        }
 
-        System.out.println("\n--- Status akhir ---");
-        System.out.println(pikachu.getName() + " HP: " + pikachu.getHp());
-        System.out.println(charmander.getName() + " HP: " + charmander.getHp());
+        // ===== START BATTLE =====
+        BattleSystem battle = new BattleSystem(pikachu, charizard);
+        battle.startBattle();
     }
 }

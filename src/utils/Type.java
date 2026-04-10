@@ -6,5 +6,6 @@ public enum Type {
     GRASS,
     ELECTRIC,
     ROCK,
-    FLYING
+    FLYING,
+    NORMAL
 }

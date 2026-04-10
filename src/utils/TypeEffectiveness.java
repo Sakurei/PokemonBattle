@@ -18,6 +18,7 @@ public class TypeEffectiveness {
         if (attacker == Type.GRASS && defender == Type.FIRE) return 0.5;
         if (attacker == Type.FIRE && defender == Type.WATER) return 0.5;
 
+        //NETRAL
         return 1.0;
     }
 }
