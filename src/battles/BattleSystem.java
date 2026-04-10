@@ -1,25 +1,29 @@
 package battles;
 
 import java.util.Scanner;
-import Models.Pokemon;
-import Models.Item;
 import java.util.ArrayList;
+
+import Models.Pokemon;
+import Models.InventoryItem;
+import Models.Player;
 
 public class BattleSystem {
 
+    private Player playerData;
     private Pokemon player;
     private Pokemon enemy;
+
     private Scanner input = new Scanner(System.in);
+    private ArrayList<InventoryItem> inventory;
 
-    private ArrayList<Item> inventory = new ArrayList<>();
+    private int captureAttempts = 3;
 
-    public BattleSystem(Pokemon player, Pokemon enemy) {
-        this.player = player;
+    public BattleSystem(Player playerData, Pokemon enemy) {
+        this.playerData = playerData;
+        this.player = playerData.getActivePokemon();
         this.enemy = enemy;
 
-        // 🔥 ISI INVENTORY (DUMMY)
-        inventory.add(new Item("Potion", 30, false, 1.0));
-        inventory.add(new Item("Antidote", 0, true, 0.7));
+        this.inventory = data.ItemData.getStartingInventory();
     }
 
     public void startBattle() {
@@ -31,83 +35,114 @@ public class BattleSystem {
 
             System.out.println("\n=== TURN " + turn + " ===");
 
-            // ===== PLAYER TURN =====
+            // 🔥 indikator tangkap
+            if (enemy.getHpRatio() <= 0.2) {
+                System.out.println("⚠️ Pokemon bisa ditangkap!");
+            }
+
+            // ===== PLAYER =====
             System.out.println("\nGiliran Player:");
 
             player.applyStatusEffect();
-            if (!player.isAlive()) break;
+            if (!player.isAlive())
+                break;
 
             if (player.canMove()) {
 
-                // 🔥 MENU UTAMA
                 System.out.println("1. Attack");
                 System.out.println("2. Use Item");
+                System.out.println("3. Catch Pokemon (" + captureAttempts + ")");
                 System.out.print("Pilih aksi: ");
+
                 int action = input.nextInt();
 
-                // ===== ATTACK =====
                 if (action == 1) {
 
-                    player.showSkills();
+                    player.showSkills(enemy);
 
                     System.out.print("Pilih skill: ");
                     int choice = input.nextInt();
 
                     if (choice < 1 || choice > player.getSkills().size()) {
-                        System.out.println("Pilihan tidak valid! Pakai skill pertama.");
                         choice = 1;
                     }
 
                     player.useSkill(choice - 1, enemy);
                 }
 
-                // ===== USE ITEM =====
-                else if (action == 2) {
+                else if (action == 3) {
 
-                    if (inventory.isEmpty()) {
-                        System.out.println("Inventory kosong!");
+                    if (captureAttempts <= 0) {
+                        System.out.println("Pokeball habis!");
+                        continue;
+                    }
+
+                    if (!enemy.isAlive()) {
+                        System.out.println("Tidak bisa ditangkap!");
+                        continue;
+                    }
+
+                    System.out.println("Melempar Pokeball...");
+
+                    boolean caught = system.CaptureSystem.tryCapture(enemy);
+                    captureAttempts--;
+
+                    if (caught) {
+                        playerData.addPokemon(enemy);
+                        break;
                     } else {
+                        System.out.println("Enemy menyerang!");
 
-                        System.out.println("Daftar Item:");
-                        for (int i = 0; i < inventory.size(); i++) {
-                            System.out.println((i + 1) + ". " + inventory.get(i).getName());
-                        }
-
-                        System.out.print("Pilih item: ");
-                        int itemChoice = input.nextInt();
-
-                        if (itemChoice >= 1 && itemChoice <= inventory.size()) {
-                            inventory.get(itemChoice - 1).use(player);
-                        } else {
-                            System.out.println("Pilihan item tidak valid!");
+                        if (enemy.canMove()) {
+                            int rand = (int) (Math.random() * enemy.getSkills().size());
+                            enemy.useSkill(rand, player);
                         }
                     }
-                }
+                } else if (action == 2) {
 
-                else {
-                    System.out.println("Pilihan tidak valid! Skip turn.");
+                    if (inventory == null || inventory.isEmpty()) {
+                        System.out.println("Inventory kosong!");
+                        continue;
+                    }
+
+                    System.out.println("=== INVENTORY ===");
+
+                    for (int i = 0; i < inventory.size(); i++) {
+                        System.out.println((i + 1) + ". " + inventory.get(i).getItem().getName());
+                    }
+
+                    System.out.print("Pilih item: ");
+                    int itemChoice = input.nextInt();
+
+                    if (itemChoice < 1 || itemChoice > inventory.size()) {
+                        System.out.println("Pilihan tidak valid!");
+                        continue;
+                    }
+
+                    // 🔥 pakai item
+                    InventoryItem selected = inventory.get(itemChoice - 1);
+                    selected.getItem().use(player);
                 }
             }
 
-            if (!enemy.isAlive()) break;
+            if (!enemy.isAlive())
+                break;
 
-            // ===== ENEMY TURN =====
+            // ===== ENEMY =====
             System.out.println("\nGiliran Enemy:");
 
             enemy.applyStatusEffect();
-            if (!enemy.isAlive()) break;
+            if (!enemy.isAlive())
+                break;
 
             if (enemy.canMove()) {
-                int randomSkill = (int)(Math.random() * enemy.getSkills().size());
-                enemy.useSkill(randomSkill, player);
+                int rand = (int) (Math.random() * enemy.getSkills().size());
+                enemy.useSkill(rand, player);
             }
-
-            if (!player.isAlive()) break;
 
             turn++;
         }
 
-        // ===== HASIL =====
         System.out.println("\n=== BATTLE END ===");
 
         if (player.isAlive()) {

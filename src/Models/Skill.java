@@ -55,6 +55,18 @@ public class Skill {
         }
     }
 
+    public int estimateDamage(Pokemon user, Pokemon target) {
+
+    double multiplier = utils.TypeEffectiveness.getMultiplier(this.type, target.getType());
+
+    int baseDamage = this.power + user.getAttack();
+    int finalDamage = (int)(baseDamage * multiplier);
+
+    if (finalDamage < 1) finalDamage = 1;
+
+    return finalDamage;
+}
+
     // ===== GETTER =====
     public String getName() { return name; }
     public Type getType() { return type; }

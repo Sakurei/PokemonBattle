@@ -2,6 +2,7 @@ package Models;
 
 import utils.Type;
 import utils.TypeEffectiveness;
+import utils.StatusEffect;
 
 public class BasicPokemon extends Pokemon {
 
@@ -18,7 +19,7 @@ public class BasicPokemon extends Pokemon {
 
         if (finalDamage < 1) finalDamage = 1;
 
-        System.out.println(name + " menyerang " + enemy.getName());
+        System.out.println("⚔️ " + name + " menyerang " + enemy.getName());
 
         if (multiplier > 1) {
             System.out.println("🔥 Super Effective!");
@@ -27,5 +28,12 @@ public class BasicPokemon extends Pokemon {
         }
 
         enemy.receiveDamage(finalDamage);
+
+        // 🔥 OPTIONAL: kecil chance kasih status
+        double chance = Math.random();
+        if (chance < 0.1) {
+            enemy.setStatus(StatusEffect.POISON);
+            System.out.println("☠️ " + enemy.getName() + " terkena POISON!");
+        }
     }
 }
