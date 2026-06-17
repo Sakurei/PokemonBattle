@@ -181,6 +181,16 @@ public abstract class Pokemon {
         return hp;
     }
 
+    public int getMaxHp() {
+        return maxHp;
+    }
+
+    public void setHp(int newHp) {
+        this.hp = newHp;
+        if (this.hp < 0) this.hp = 0;
+        if (this.hp > maxHp) this.hp = maxHp;
+    }
+
     public int getAttack() {
         return attack;
     }

@@ -2,12 +2,12 @@ package com.pokemon.pokemonbattle.game;
 
 import java.util.Scanner;
 import com.pokemon.pokemonbattle.model.*;
-import battles.BattleSystem;
+import com.pokemon.pokemonbattle.system.BattleSystemLegacy;
 import com.pokemon.pokemonbattle.utils.Type;
-import data.SkillData;
+import com.pokemon.pokemonbattle.data.SkillData;
 import java.util.ArrayList;
 import java.util.Random;
-import system.*;
+import com.pokemon.pokemonbattle.system.SaveSystem;
 
 public class Game {
 
@@ -85,7 +85,7 @@ public class Game {
 
                     System.out.println("Lawan muncul: " + enemy.getName());
 
-                    BattleSystem battle = new BattleSystem(player, enemy);
+                    BattleSystemLegacy battle = new BattleSystemLegacy(player, enemy);
                     battle.startBattle();
                     break;
 
