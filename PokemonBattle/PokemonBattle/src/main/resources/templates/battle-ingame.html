@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokéBattle - Arena</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body data-page="battle-ingame">
+<div class="page" id="battle-ingame">
+  <nav>
+    <div class="nav-logo"><div class="nav-logo-icon">⚔️</div><span class="nav-logo-text">PokéBattle</span></div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="goTo('home')"><i class="ti ti-home" aria-hidden="true"></i> Home</button>
+      <button class="nav-link" onclick="goTo('collection')"><i class="ti ti-book" aria-hidden="true"></i> Collection</button>
+      <button class="nav-link active"><i class="ti ti-sword" aria-hidden="true"></i> Battle</button>
+      <button class="nav-link" onclick="goTo('inventory')"><i class="ti ti-package" aria-hidden="true"></i> Inventory</button>
+    </div>
+    <div class="nav-right">
+      <div class="badge-trainer">⭐ Admin12345</div>
+      <button class="btn-logout" onclick="goTo('login')"><i class="ti ti-logout" aria-hidden="true"></i> Logout</button>
+    </div>
+  </nav>
+  <div class="page-content">
+    <div style="text-align:center;font-size:10px;color:var(--text3);margin-bottom:12px;font-family:'Press Start 2P',monospace">— Giliran 1 —</div>
+    <!-- Arena -->
+    <div class="battle-arena">
+      <div class="arena-bg-details"></div>
+      <div class="enemy-area">
+        <div class="battle-hud" style="text-align:left;min-width:160px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span class="type-badge type-electric">Electric</span>
+          </div>
+          <div class="hud-name">Agumon</div>
+          <div class="hud-hp">HP 74/74</div>
+          <div class="stat-bar"><div class="stat-fill fill-green" style="width:100%"></div></div>
+        </div>
+        <div class="battle-pokemon-sprite" style="text-align:right;margin-top:8px">🦕</div>
+      </div>
+      <div class="player-area">
+        <div class="battle-pokemon-sprite">🔥</div>
+        <div class="battle-hud" style="margin-top:8px;min-width:160px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+            <span class="type-badge type-fire">Fire</span>
+          </div>
+          <div class="hud-name">Charizard</div>
+          <div class="hud-hp">HP 70/78</div>
+          <div class="stat-bar"><div class="stat-fill fill-yellow" style="width:89%"></div></div>
+        </div>
+      </div>
+    </div>
+    <!-- Log & Actions -->
+    <div class="battle-layout">
+      <div class="battle-log">
+        <div class="log-title">⬛ Battle Log</div>
+        <div class="log-entry">Battle dimulai!</div>
+        <div class="log-entry">Trainer Utility menantang kamu dengan Agumon!</div>
+        <div class="log-entry">GO! Charizard!</div>
+        <div class="log-entry">Charizard menggunakan Flamethrower!</div>
+        <div class="log-entry">Agumon terkena 8 damage!</div>
+      </div>
+      <div class="battle-actions">
+        <div class="action-title2">Giliran Charizard — Apa yang kamu lakukan?</div>
+        <div class="action-btns">
+          <button class="btn btn-red" onclick="addLog()">⚔️ Fight<br><small style="font-weight:400;font-size:9px">Gunakan skill</small></button>
+          <button class="btn btn-purple" onclick="goTo('inventory')">🎒 Item<br><small style="font-weight:400;font-size:9px">Gunakan item</small></button>
+        </div>
+        <div style="margin-top:8px">
+          <button class="btn btn-outline btn-sm" style="width:100%;justify-content:center;margin-top:4px" onclick="goTo('battle-result')">
+            <i class="ti ti-flag" aria-hidden="true"></i> Akhiri Battle (demo)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>
