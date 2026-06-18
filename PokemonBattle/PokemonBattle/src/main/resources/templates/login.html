@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokéBattle - Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body data-page="login">
+<div class="page" id="login">
+  <div class="login-bg-art">
+    <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="200" cy="200" r="180" stroke="#a855f7" stroke-width="1" stroke-dasharray="8 4" opacity=".5"/>
+      <circle cx="200" cy="200" r="120" stroke="#e63946" stroke-width="1" opacity=".4"/>
+      <text x="200" y="220" text-anchor="middle" font-size="120" fill="#7c3aed" opacity=".3">⚡</text>
+    </svg>
+  </div>
+  <div class="login-box">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="width:44px;height:44px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:20px">⚔️</div>
+      <div class="login-title">PokeBattle</div>
+      <div class="login-sub">Masuk untuk memulai petualangan</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" type="text" placeholder="Masukkan email kamu...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" placeholder="Masukkan password...">
+    </div>
+    <button class="btn btn-red" style="width:100%;justify-content:center;margin-top:8px" onclick="goTo('home')">
+      ⚡ Login
+    </button>
+    <div class="login-footer">
+      Belum punya akun? <span onclick="alert('Fitur register belum tersedia')">Daftar di sini</span>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

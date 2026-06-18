@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokéBattle - Home</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body data-page="home">
+<div class="page" id="home">
+  <nav>
+    <div class="nav-logo">
+      <div class="nav-logo-icon">⚔️</div>
+      <span class="nav-logo-text">PokéBattle</span>
+    </div>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="goTo('home')"><i class="ti ti-home" aria-hidden="true"></i> Home</button>
+      <button class="nav-link" onclick="goTo('collection')"><i class="ti ti-book" aria-hidden="true"></i> Collection</button>
+      <button class="nav-link" onclick="goTo('battle-home')"><i class="ti ti-sword" aria-hidden="true"></i> Battle</button>
+      <button class="nav-link" onclick="goTo('inventory')"><i class="ti ti-package" aria-hidden="true"></i> Inventory</button>
+    </div>
+    <div class="nav-right">
+      <div class="badge-trainer">⭐ Admin12345</div>
+      <button class="btn-logout" onclick="goTo('login')"><i class="ti ti-logout" aria-hidden="true"></i> Logout</button>
+    </div>
+  </nav>
+  <div class="home-content">
+    <div class="trainer-card">
+      <div class="trainer-avatar">A</div>
+      <div>
+        <div><span class="trainer-badge">TRAINER</span> <span style="font-size:10px;color:rgba(255,255,255,.5)">#QWERTY</span></div>
+        <div class="trainer-name">Admin12345</div>
+        <div class="trainer-role">Pokémon Trainer</div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-card-icon">🎮</div><div class="stat-card-val">3</div><div class="stat-card-lbl">Pokémon Dimiliki</div></div>
+      <div class="stat-card"><div class="stat-card-icon">🏆</div><div class="stat-card-val" style="color:var(--green)">0</div><div class="stat-card-lbl">Total Menang</div></div>
+      <div class="stat-card"><div class="stat-card-icon">💀</div><div class="stat-card-val" style="color:var(--red)">0</div><div class="stat-card-lbl">Total Kalah</div></div>
+      <div class="stat-card"><div class="stat-card-icon">🎒</div><div class="stat-card-val" style="color:var(--yellow)">18</div><div class="stat-card-lbl">Total Item</div></div>
+    </div>
+    <div class="quick-actions">
+      <div class="action-card" onclick="goTo('battle-home')">
+        <div class="action-card-icon" style="background:rgba(230,57,70,.15)">⚔️</div>
+        <div class="action-title">Mulai Battle!</div>
+        <div class="action-desc">Tantang trainer lain dalam pertarungan sengit</div>
+      </div>
+      <div class="action-card" onclick="goTo('collection')">
+        <div class="action-card-icon" style="background:rgba(124,58,237,.15)">📖</div>
+        <div class="action-title">Lihat Koleksi</div>
+        <div class="action-desc">Kelola 5 Pokémon dalam koleksimu</div>
+      </div>
+      <div class="action-card" onclick="goTo('inventory')">
+        <div class="action-card-icon" style="background:rgba(234,179,8,.15)">🎒</div>
+        <div class="action-title">Buka Inventory</div>
+        <div class="action-desc">18 item tersedia untuk digunakan</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PokéBattle - Inventory</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body data-page="inventory">
+<div class="page" id="inventory">
+  <nav>
+    <div class="nav-logo"><div class="nav-logo-icon">⚔️</div><span class="nav-logo-text">PokéBattle</span></div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="goTo('home')"><i class="ti ti-home" aria-hidden="true"></i> Home</button>
+      <button class="nav-link" onclick="goTo('collection')"><i class="ti ti-book" aria-hidden="true"></i> Collection</button>
+      <button class="nav-link" onclick="goTo('battle-home')"><i class="ti ti-sword" aria-hidden="true"></i> Battle</button>
+      <button class="nav-link active" onclick="goTo('inventory')"><i class="ti ti-package" aria-hidden="true"></i> Inventory</button>
+    </div>
+    <div class="nav-right">
+      <div class="badge-trainer">⭐ Admin12345</div>
+      <button class="btn-logout" onclick="goTo('login')"><i class="ti ti-logout" aria-hidden="true"></i> Logout</button>
+    </div>
+  </nav>
+  <div class="page-content">
+    <div class="page-header">
+      <div class="page-title">Inventory</div>
+      <div class="page-sub">Item yang tersedia untuk digunakan saat battle</div>
+    </div>
+    <div class="inventory-grid">
+      <div class="item-card">
+        <div class="item-icon" style="background:rgba(124,58,237,.15)">🔮</div>
+        <div><div class="item-name">Master Ball</div><div class="item-desc">The best Ball with the ultimate level of performance. It will catch any wild Pokémon without fail.</div><div class="item-count">5x</div></div>
+      </div>
+      <div class="item-card">
+        <div class="item-icon" style="background:rgba(34,197,94,.15)">💊</div>
+        <div><div class="item-name">Full Restore</div><div class="item-desc">A medicine that fully restores the HP and heals any status problems of a single Pokémon.</div><div class="item-count">15x</div></div>
+      </div>
+      <div class="item-card">
+        <div class="item-icon" style="background:rgba(239,68,68,.15)">❤️</div>
+        <div><div class="item-name">Full Revive</div><div class="item-desc">A medicine that revives a fainted Pokémon. It fully restores the fainted Pokémon's HP.</div><div class="item-count">10x</div></div>
+      </div>
+      <div class="item-card">
+        <div class="item-icon" style="background:rgba(234,179,8,.15)">💉</div>
+        <div><div class="item-name">Antidote</div><div class="item-desc">A medicine that cures a singled poisoned Pokémon of the poison status problem.</div><div class="item-count">30x</div></div>
+      </div>
+      <div class="item-card">
+        <div class="item-icon" style="background:rgba(59,130,246,.15)">✨</div>
+        <div><div class="item-name">Max Ether</div><div class="item-desc">A spray-type medicine. It fully restores the PP of a single move that has been taught to a Pokémon.</div><div class="item-count">20x</div></div>
+      </div>
+      <div class="item-card">
+        <div class="item-icon" style="background:rgba(168,85,247,.15)">🍹</div>
+        <div><div class="item-name">Soda Pop</div><div class="item-desc">A fizzy soda drink. It restores the HP of one Pokémon by 60 points.</div><div class="item-count">60x</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/main.js"></script>
+</body>
+</html>

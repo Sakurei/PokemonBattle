@@ -1,0 +1,206 @@
+﻿<!-- <!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Battle</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">Pokemon Battle</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#skills-section">Skills</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#actions-section">Actions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#response-section">Response</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="bg-white rounded shadow-sm p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h1 class="h3 mb-1">Pokemon Battle API Dashboard</h1>
+                            <p class="text-muted mb-0">This view uses the REST endpoints exposed by <code>/api/game</code>.</p>
+                        </div>
+                        <button class="btn btn-outline-primary" id="refreshSkills">Refresh Skills</button>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="card border-primary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Current Endpoint</h5>
+                                    <p class="card-text mb-0"><code>/api/game/skills</code></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-success h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Example Request</h5>
+                                    <p class="card-text mb-0">GET <code>/api/game/skills</code></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-info h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">Game Flow</h5>
+                                    <p class="card-text mb-0">Use endpoints to initialize, battle, capture, and switch Pokemon.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section id="skills-section" class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h2 class="h5 mb-0">Skill Library</h2>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Skill Name</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Power</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="skillsTableBody">
+                                    <tr>
+                                        <td colspan="3" class="text-center py-4 text-muted">Loading skills...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="actions-section" class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h2 class="h5 mb-0">Game Actions</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-lg-4">
+                                <div class="card border-primary h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Initialize Game</h5>
+                                        <form id="initForm" class="row g-2">
+                                            <div class="col-12">
+                                                <input type="text" class="form-control" id="playerName" value="Ash" placeholder="Player name">
+                                            </div>
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-primary w-100">Init</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="card border-success h-100">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">Battle Controls</h5>
+                                        <button class="btn btn-success mb-2" id="startBattle">Start Battle</button>
+                                        <button class="btn btn-outline-success mb-2" id="battleState">Get State</button>
+                                        <button class="btn btn-danger mb-2" id="endBattle">End Battle</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="card border-info h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Battle Actions</h5>
+                                        <form id="attackForm" class="row g-2 mb-3">
+                                            <div class="col-12">
+                                                <input type="number" min="0" class="form-control" id="skillIndex" placeholder="Skill index">
+                                            </div>
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-info w-100">Attack</button>
+                                            </div>
+                                        </form>
+                                        <form id="useItemForm" class="row g-2 mb-3">
+                                            <div class="col-12">
+                                                <input type="number" min="0" class="form-control" id="itemIndex" placeholder="Item index">
+                                            </div>
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-outline-info w-100">Use Item</button>
+                                            </div>
+                                        </form>
+                                        <form id="switchForm" class="row g-2">
+                                            <div class="col-12">
+                                                <input type="number" min="0" class="form-control" id="switchIndex" placeholder="Switch index">
+                                            </div>
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-outline-secondary w-100">Switch Pokemon</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-12">
+                                <div class="card border-warning h-100">
+                                    <div class="card-body d-flex flex-column flex-md-row gap-2">
+                                        <button class="btn btn-warning w-100" id="capturePokemon">Capture Pokemon</button>
+                                        <button class="btn btn-outline-warning w-100" id="getCollection">Get Collection</button>
+                                        <button class="btn btn-secondary w-100" id="healthCheck">Health Check</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="response-section" class="row">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white border-bottom-0">
+                        <h2 class="h5 mb-0">API Response</h2>
+                    </div>
+                    <div class="card-body">
+                        <pre id="apiResponse" class="bg-light p-3 rounded text-break" style="min-height: 240px;">Waiting for action...</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html> -->
