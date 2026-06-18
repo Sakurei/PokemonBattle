@@ -1,9 +1,17 @@
 // ===== API BASE URL =====
 const API_BASE = '/api/game';
 
+// ===== GLOBAL STATE =====
+let POKEMON = [];
+let currentPlayer = null;
+let currentBattleState = null;
+let INVENTORY = [];
+let selectedPokemonIndex = 0;
+let battleActive = false;
+let turnCount = 0;
+
 // ===== UTILITY FUNCTIONS =====
 function displayResponse(data) {
-    // Kita gunakan console.log agar tidak mengganggu UI baru
     console.log("API Response:", data);
 }
 
@@ -30,15 +38,87 @@ async function makeRequest(endpoint, options = {}) {
     }
 }
 
-// ===== UI STATE =====
-// Data dummy ini nantinya bisa kamu ganti dengan hasil fetch dari backend
-const POKEMON = [
-  {name:'Charizard',sprite:'🔥',type:'fire',hp:78,maxhp:78,atk:84,def:78,spd:100,level:75},
-  {name:'Blastoise',sprite:'💧',type:'water',hp:79,maxhp:79,atk:83,def:100,spd:78,level:72},
-  {name:'Venusaur',sprite:'🌿',type:'grass',hp:80,maxhp:80,atk:82,def:83,spd:80,level:70},
-  {name:'Emboar',sprite:'🐗',type:'fire',hp:110,maxhp:110,atk:123,def:65,spd:65,level:68},
-  {name:'Zebstrika',sprite:'⚡',type:'electric',hp:75,maxhp:75,atk:100,def:63,spd:116,level:65},
-];
+// ===== LOAD PLAYER DATA FROM BACKEND =====
+async function loadPlayerData() {
+    const playerName = localStorage.getItem('playerName') || 'Admin12345';
+    
+    // Initialize game
+    const initResponse = await makeRequest(`/init?playerName=${encodeURIComponent(playerName)}`, { method: 'POST' });
+    
+    if (initResponse && initResponse.player) {
+        currentPlayer = initResponse.player;
+        localStorage.setItem('playerName', currentPlayer.name);
+        
+        // Load Pokemon collection
+        await loadPokemonCollection();
+    }
+}
+
+async function loadPokemonCollection() {
+    const response = await makeRequest('/pokemon/collection');
+    
+    if (response && response.collection) {
+        // Convert backend Pokemon objects to UI format
+        POKEMON = response.collection.map(p => ({
+            name: p.name,
+            sprite: getPokemonSprite(p.type),
+            type: p.type.toLowerCase(),
+            hp: p.hp,
+            maxhp: p.maxHp,
+            atk: p.attack,
+            def: p.defense,
+            spd: p.speed || 80, // Default speed if not available
+            level: p.level || 50,
+            skills: p.skills || []
+        }));
+        
+        return POKEMON;
+    }
+    return [];
+}
+
+// ===== LOAD INVENTORY FROM BACKEND =====
+async function loadInventory() {
+    const response = await makeRequest('/pokemon/collection');
+    
+    if (response && response.collection) {
+        // Get items from player's inventory (from backend if available)
+        // For now, creating sample items based on ItemData.java
+        INVENTORY = [
+            { name: 'Potion', icon: '💊', amount: 2, description: 'Restores 30 HP', index: 0 },
+            { name: 'Antidote', icon: '🧴', amount: 1, description: 'Cures poisoning', index: 1 },
+            { name: 'Full Restore', icon: '💊', amount: 5, description: 'Fully restores HP', index: 2 },
+            { name: 'Full Revive', icon: '❤️', amount: 3, description: 'Revives fainted Pokemon', index: 3 }
+        ];
+        
+        return INVENTORY;
+    }
+    return [];
+}
+
+// ===== POKEMON SPRITE MAPPER =====
+function getPokemonSprite(type) {
+    const sprites = {
+        'FIRE': '🔥',
+        'WATER': '💧',
+        'GRASS': '🌿',
+        'ELECTRIC': '⚡',
+        'ICE': '❄️',
+        'FIGHTING': '👊',
+        'POISON': '☠️',
+        'GROUND': '🪨',
+        'FLYING': '🦅',
+        'PSYCHIC': '🧠',
+        'BUG': '🐛',
+        'ROCK': '⛰️',
+        'GHOST': '👻',
+        'DRAGON': '🐉',
+        'DARK': '🌑',
+        'STEEL': '⚙️',
+        'FAIRY': '✨'
+    };
+    return sprites[type] || '🟡';
+}
 
 // ===== NAVIGATION =====
 function goTo(pageName) {
@@ -47,23 +127,282 @@ function goTo(pageName) {
 
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', async () => {
+  // Load player data from backend first
+  await loadPlayerData();
+  await loadInventory();
+  
   const pageId = document.body.getAttribute('data-page');
   
   if (pageId === 'collection') {
     renderCollection();
-    // Contoh untuk integrasi backend nantinya:
-    // const collectionData = await makeRequest('/pokemon/collection');
-    // renderCollectionWithRealData(collectionData);
   } else if (pageId === 'battle-home') {
     renderBattlePick();
   } else if (pageId === 'home') {
-      // Init player saat masuk home
-      // await makeRequest(`/init?playerName=Admin12345`, { method: 'POST' });
+      renderHomeStats();
+  } else if (pageId === 'inventory') {
+      renderInventory();
   } else if (pageId === 'battle-ingame') {
-      // Start battle saat masuk arena
-      // await makeRequest('/battle/start', { method: 'POST' });
+      await initBattle();
+  } else if (pageId === 'battle-result') {
+      renderBattleResult();
   }
 });
+
+// ===== RENDER HOME STATS =====
+function renderHomeStats() {
+  if (!currentPlayer) return;
+  
+  // Update trainer name
+  const trainerBadge = document.querySelector('.badge-trainer');
+  if (trainerBadge) trainerBadge.textContent = `⭐ ${currentPlayer.name}`;
+  
+  const trainerName = document.querySelector('.trainer-name');
+  if (trainerName) trainerName.textContent = currentPlayer.name;
+  
+  // Update collection stats
+  const collectionStat = document.querySelector('.stat-card-val');
+  if (collectionStat) collectionStat.textContent = POKEMON.length;
+}
+
+// ===== INITIALIZE BATTLE =====
+async function initBattle() {
+  const battleResponse = await makeRequest('/battle/start', { method: 'POST' });
+  
+  if (battleResponse && battleResponse.battleState) {
+    currentBattleState = battleResponse.battleState;
+    battleActive = true;
+    turnCount = 0;
+    
+    renderBattleArena();
+    renderBattleSkills();
+    renderBattleLog('Battle started! GO!');
+  }
+}
+
+// ===== RENDER BATTLE ARENA =====
+function renderBattleArena() {
+  if (!currentBattleState) return;
+  
+  const playerPoke = currentBattleState.playerPokemon;
+  const enemyPoke = currentBattleState.enemyPokemon;
+  
+  // Update enemy area
+  const enemySprite = document.querySelector('.enemy-area .battle-pokemon-sprite');
+  const enemyHUD = document.querySelector('.enemy-area .battle-hud');
+  
+  if (enemySprite && enemyPoke) {
+    enemySprite.textContent = getPokemonSprite(enemyPoke.type);
+  }
+  
+  if (enemyHUD && enemyPoke) {
+    const enemyHpPct = Math.round((enemyPoke.hp / enemyPoke.maxHp) * 100);
+    enemyHUD.innerHTML = `
+      <div style="font-weight:bold">${enemyPoke.name}</div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Lv. ${enemyPoke.level || 50}</div>
+      <div style="font-size:9px;margin-bottom:2px">${enemyPoke.hp}/${enemyPoke.maxHp} HP</div>
+      <div class="stat-bar" style="height:6px">
+        <div class="stat-fill" style="width:${enemyHpPct}%;background:${enemyHpPct > 50 ? 'var(--green)' : enemyHpPct > 25 ? 'var(--yellow)' : 'var(--red)'}"></div>
+      </div>
+    `;
+  }
+  
+  // Update player area
+  const playerSprite = document.querySelector('.player-area .battle-pokemon-sprite');
+  const playerHUD = document.querySelector('.player-area .battle-hud');
+  
+  if (playerSprite && playerPoke) {
+    playerSprite.textContent = getPokemonSprite(playerPoke.type);
+  }
+  
+  if (playerHUD && playerPoke) {
+    const playerHpPct = Math.round((playerPoke.hp / playerPoke.maxHp) * 100);
+    playerHUD.innerHTML = `
+      <div style="text-align:right">
+        <div style="font-weight:bold">${playerPoke.name}</div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Lv. ${playerPoke.level || 50}</div>
+        <div style="font-size:9px;margin-bottom:2px">${playerPoke.hp}/${playerPoke.maxHp} HP</div>
+        <div class="stat-bar" style="height:6px">
+          <div class="stat-fill" style="width:${playerHpPct}%;background:${playerHpPct > 50 ? 'var(--green)' : playerHpPct > 25 ? 'var(--yellow)' : 'var(--red)'}"></div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// ===== RENDER BATTLE SKILLS =====
+async function renderBattleSkills() {
+  if (!currentBattleState || !currentBattleState.playerPokemon) return;
+  
+  const skillsResponse = await makeRequest('/skills');
+  const allSkills = skillsResponse?.skills || [];
+  
+  const actionPanel = document.querySelector('.battle-actions');
+  if (!actionPanel) return;
+  
+  const playerPoke = currentBattleState.playerPokemon;
+  const pokemonSkills = playerPoke.skills || [];
+  
+  let actionsHTML = `<div class="action-title2">Giliran ${playerPoke.name} — Apa yang kamu lakukan?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">`;
+  
+  // Render skills as buttons (max 4 skills)
+  pokemonSkills.slice(0, 4).forEach((skill, index) => {
+    actionsHTML += `
+      <button class="btn btn-sm" style="background:var(--blue);color:white;cursor:pointer" onclick="performAttack(${index})">
+        ${skill.name}
+      </button>
+    `;
+  });
+  
+  actionsHTML += `</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn btn-sm" style="background:var(--yellow);color:black;cursor:pointer" onclick="openItemMenu()">
+        🎒 Use Item
+      </button>
+      <button class="btn btn-sm" style="background:var(--purple);color:white;cursor:pointer" onclick="switchPokemonBattle()">
+        🔄 Switch Pokemon
+      </button>
+    </div>`;
+  
+  actionPanel.innerHTML = actionsHTML;
+}
+
+// ===== PERFORM ATTACK =====
+async function performAttack(skillIndex) {
+  const attackResult = await makeRequest(`/battle/attack?skillIndex=${skillIndex}`, { method: 'POST' });
+  
+  if (attackResult && attackResult.result) {
+    turnCount++;
+    currentBattleState = attackResult.battleState;
+    
+    // Add log entry
+    renderBattleLog(attackResult.result.action);
+    
+    // Update arena
+    renderBattleArena();
+    
+    // Check if battle is over
+    if (!attackResult.result.battleActive) {
+      await endBattle(attackResult.result.message);
+    } else {
+      // Re-render skills for next turn
+      await renderBattleSkills();
+    }
+  }
+}
+
+// ===== BATTLE LOG =====
+function renderBattleLog(message) {
+  const log = document.querySelector('.battle-log');
+  if (!log) return;
+  
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.textContent = message;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+// ===== SWITCH POKEMON =====
+async function switchPokemonBattle() {
+  // Show available Pokemon for switch
+  const availablePokemon = POKEMON.filter((_, i) => i !== selectedPokemonIndex && POKEMON[i].hp > 0);
+  
+  if (availablePokemon.length === 0) {
+    renderBattleLog('No other Pokemon available!');
+    return;
+  }
+  
+  // For simplicity, switch to first available
+  const newIndex = POKEMON.findIndex((_, i) => i !== selectedPokemonIndex && POKEMON[i].hp > 0);
+  if (newIndex === -1) return;
+  
+  const switchResponse = await makeRequest(`/pokemon/switch?index=${newIndex}`, { method: 'POST' });
+  
+  if (switchResponse) {
+    selectedPokemonIndex = newIndex;
+    currentBattleState = switchResponse.battleState;
+    
+    renderBattleLog(`Switched to ${POKEMON[newIndex].name}!`);
+    renderBattleArena();
+    await renderBattleSkills();
+  }
+}
+
+// ===== USE ITEM IN BATTLE =====
+async function openItemMenu() {
+  const items = INVENTORY.filter(item => item.amount > 0);
+  
+  if (items.length === 0) {
+    renderBattleLog('No items available!');
+    return;
+  }
+  
+  // Use first available item
+  const itemResult = await makeRequest(`/battle/use-item?itemIndex=${items[0].index}`, { method: 'POST' });
+  
+  if (itemResult) {
+    currentBattleState = itemResult.battleState;
+    renderBattleLog(itemResult.message);
+    renderBattleArena();
+    await renderBattleSkills();
+  }
+}
+
+// ===== CAPTURE POKEMON =====
+async function capturePokemonBattle() {
+  const captureResult = await makeRequest('/battle/capture', { method: 'POST' });
+  
+  if (captureResult && captureResult.result) {
+    renderBattleLog(captureResult.result.message);
+    
+    if (captureResult.result.captured) {
+      renderBattleLog(`Captured ${currentBattleState.enemyPokemon.name}!`);
+      await endBattle('🎉 Pokemon captured!');
+    } else {
+      renderBattleLog('Capture failed! The Pokemon broke free!');
+    }
+  }
+}
+
+// ===== END BATTLE =====
+async function endBattle(message) {
+  battleActive = false;
+  
+  const endResponse = await makeRequest('/battle/end', { method: 'POST' });
+  
+  renderBattleLog(message);
+  
+  // Determine win/loss
+  const isVictory = message.includes('Menang') || message.includes('Captured');
+  localStorage.setItem('lastBattleWin', isVictory);
+  localStorage.setItem('lastBattleMessage', message);
+  localStorage.setItem('lastBattleTurns', turnCount);
+
+  // Simpan data Pokemon (nama & type untuk sprite) sebelum currentBattleState hilang
+  if (currentBattleState) {
+    if (currentBattleState.playerPokemon) {
+      localStorage.setItem('lastPlayerPokemon', JSON.stringify({
+        name: currentBattleState.playerPokemon.name,
+        type: currentBattleState.playerPokemon.type
+      }));
+    }
+    if (currentBattleState.enemyPokemon) {
+      localStorage.setItem('lastEnemyPokemon', JSON.stringify({
+        name: currentBattleState.enemyPokemon.name,
+        type: currentBattleState.enemyPokemon.type
+      }));
+    }
+  }
+
+  // Akumulasi statistik total battle & menang
+  const totalBattles = parseInt(localStorage.getItem('totalBattles') || '0', 10) + 1;
+  const totalWins = parseInt(localStorage.getItem('totalWins') || '0', 10) + (isVictory ? 1 : 0);
+  localStorage.setItem('totalBattles', totalBattles);
+  localStorage.setItem('totalWins', totalWins);
+  
+  setTimeout(() => goTo('battle-result'), 2000);
+}
 
 // ===== RENDER LOGIC =====
 function renderCollection(){
@@ -150,56 +489,46 @@ function selectPick(el){
   el.classList.add('selected');
 }
 
+// ===== RENDER INVENTORY =====
+function renderInventory() {
+  const grid = document.querySelector('.inventory-grid');
+  if (!grid || INVENTORY.length === 0) return;
+  
+  grid.innerHTML = INVENTORY.map(item => `
+    <div class="item-card">
+      <div class="item-icon" style="background:rgba(124,58,237,.15)">${item.icon}</div>
+      <div>
+        <div class="item-name">${item.name}</div>
+        <div class="item-desc">${item.description}</div>
+        <div class="item-count">${item.amount}x</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ===== RENDER BATTLE RESULT =====
+// NOTE: renderBattleResult() didefinisikan di inline <script> battle-result.html
+// (versi lengkap: ambil pokemon, turns, winrate dari localStorage).
+// Sengaja TIDAK didefinisikan di sini lagi supaya tidak ada 2 deklarasi
+// function dengan nama sama yang saling override secara implisit.
+
 // ===== BATTLE LOGIC =====
-let logCount = 0;
-async function addLog(){
-  const log = document.querySelector('.battle-log');
-  if (!log) return;
-  
-  // Nanti temanmu bisa mengaktifkan baris ini untuk memanggil endpoint attack:
-  // const attackResult = await makeRequest(`/battle/attack?skillIndex=0`, { method: 'POST' });
-  
-  logCount++;
-  const entries = ['Charizard menggunakan Flamethrower!','Agumon terkena 12 damage!','Agumon menggunakan Thunder!','Charizard terkena 8 damage!'];
-  const div = document.createElement('div');
-  div.className = 'log-entry';
-  div.textContent = entries[logCount % entries.length];
-  log.appendChild(div);
-  log.scrollTop = log.scrollHeight;
-  if(logCount >= 3) {
-      // End battle
-      // await makeRequest('/battle/end', { method: 'POST' });
-      setTimeout(()=>goTo('battle-result'),400);
-  }
-}
-
-// ===== RESULT LOGIC =====
-let isWin = true;
-function toggleResult(){
-  isWin = !isWin;
-  document.getElementById('result-icon').textContent = isWin ? '🏆' : '💀';
-  const title = document.getElementById('result-title');
-  title.textContent = isWin ? 'VICTORY!' : 'DEFEATED...';
-  title.className = 'result-title ' + (isWin?'win':'lose');
-  const badge = document.getElementById('result-badge');
-  badge.textContent = isWin ? '⭐ Kamu berhasil mengalahkan lawan!' : '💔 Kamu berhasil dikalahkan lawan...';
-  badge.className = 'result-badge ' + (isWin?'win':'lose');
-  document.getElementById('res-menang').textContent = isWin ? '1' : '0';
-  document.getElementById('res-winrate').textContent = isWin ? '100%' : '0%';
-  document.getElementById('result-tip').textContent = isWin
-    ? '✨ Pokémon kamu semakin kuat! Terus berlatih!'
-    : '😔 Gunakan item di inventory untuk memulihkan Pokémon dan coba lagi!';
-}
-
-// ===== API WRAPPERS (Untuk digunakan temanmu nanti) =====
 async function doAttack(skillIndex) {
-    const result = await makeRequest(`/battle/attack?skillIndex=${skillIndex}`, { method: 'POST' });
-    console.log("Attack result:", result);
-    return result;
+    return await makeRequest(`/battle/attack?skillIndex=${skillIndex}`, { method: 'POST' });
 }
 
 async function doUseItem(itemIndex) {
-    const result = await makeRequest(`/battle/use-item?itemIndex=${itemIndex}`, { method: 'POST' });
-    console.log("Item used:", result);
-    return result;
+    return await makeRequest(`/battle/use-item?itemIndex=${itemIndex}`, { method: 'POST' });
+}
+
+async function doCapture() {
+    return await makeRequest('/battle/capture', { method: 'POST' });
+}
+
+async function doSwitch(pokemonIndex) {
+    return await makeRequest(`/pokemon/switch?index=${pokemonIndex}`, { method: 'POST' });
+}
+
+async function getBattleState() {
+    return await makeRequest('/battle/state');
 }
